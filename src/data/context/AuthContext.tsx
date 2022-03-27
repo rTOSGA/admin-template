@@ -7,6 +7,7 @@ import Cookies from "js-cookie";
 interface AuthContextProps {
   usuario?: Usuario;
   carregando?: boolean;
+  login?: (email: string, senha: string) => Promise<void>;
   loginGoogle?: () => Promise<void>;
   logout?: () => Promise<void>;
 }
@@ -56,20 +57,48 @@ export function AuthProvider(props) {
     }
   }
 
-  async function loginGoogle() {
+  async function login(email, senha) {
     try {
+      setCarregando(true)
       const resp = await firebase
         .auth()
-        .signInWithPopup(new firebase.auth.GoogleAuthProvider());
+        .signInWithEmailAndPassword(email, senha)
 
-      configurarSessao(resp.user);
+      await configurarSessao(resp.user);
+      router.push("/");
+    } finally {
+      setCarregando(false);
+    }
+  }
+  async function cadastrar(email, senha) {
+    try {
+      setCarregando(true)
+      const resp = await firebase
+        .auth()
+        .createUserWithEmailAndPassword(email, senha)
+
+      await configurarSessao(resp.user);
       router.push("/");
     } finally {
       setCarregando(false);
     }
   }
 
-  async function logout() {
+  async function loginGoogle() {
+    try {
+      setCarregando(true)
+      const resp = await firebase
+        .auth()
+        .signInWithPopup(new firebase.auth.GoogleAuthProvider());
+
+      await configurarSessao(resp.user);
+      router.push("/");
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  async function logout(): Promise<void> {
     try {
       setCarregando(true);
       await firebase.auth().signOut();
@@ -84,7 +113,7 @@ export function AuthProvider(props) {
       const cancelar = firebase.auth().onIdTokenChanged(configurarSessao);
       return () => cancelar();
     } else {
-        setCarregando(false)
+      setCarregando(false);
     }
   }, []);
 
@@ -93,6 +122,7 @@ export function AuthProvider(props) {
       value={{
         usuario,
         carregando,
+        login,
         loginGoogle,
         logout,
       }}
