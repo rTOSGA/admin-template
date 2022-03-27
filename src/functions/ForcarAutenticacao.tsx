@@ -4,7 +4,7 @@ import Router from "next/router";
 import loading from "../../public/images/loading.gif";
 import useAuth from "../data/hook/useAuth";
 
-export default function ForcarAutenticacao(props) {
+export default function ForcarAutenticacao(jsx) {
   const { usuario, carregando } = useAuth();
 
   function renderizarConteudo() {
@@ -19,7 +19,7 @@ export default function ForcarAutenticacao(props) {
             }}
           ></script>
         </Head>
-        {props.children}
+        {jsx}
       </>
     );
   }
