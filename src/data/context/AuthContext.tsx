@@ -91,6 +91,8 @@ export function AuthProvider(props) {
         .auth()
         .signInWithPopup(new firebase.auth.GoogleAuthProvider());
 
+        console.log(resp)
+        console.log(resp.user)
       await configurarSessao(resp.user);
       router.push("/");
     } finally {
